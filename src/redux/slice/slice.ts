@@ -17,6 +17,7 @@ export interface User {
   // bio: string;
   email: string;
   number: string;
+  // isLogin:boolean;
   // ispublic: boolean;
   // ntfctncontent?:string,
 }
@@ -32,10 +33,12 @@ export const postUsersData = createAsyncThunk(
   "users/postUsersData",
   async (newUser: User) => {
     console.log(newUser);
-    const response: AxiosResponse<User[]> = await axios.post(
-      "https://userapideployda.onrender.com/users",
-      { ...newUser, id: uuidv4() }
-    );
+    const response: AxiosResponse<User[], void> = await axios
+      .post("https://userapideployda.onrender.com/users", {
+        ...newUser,
+        id: uuidv4(),
+      })
+    //  .then((res) => console.log(res));
     return response.data;
   }
 );
@@ -43,6 +46,7 @@ export const postUsersData = createAsyncThunk(
 export interface UserState {
   user: User;
   users: User[];
+  isLogin:boolean
 }
 export interface Id {
   _id: string;
@@ -54,13 +58,15 @@ const initialState: UserState = {
     username: "",
     password: "",
     email: "",
-    number: '',
+    number: "",
+    // isLogin: false
   },
   users: [],
-}
+  isLogin: false
+};
 
 export const UserSlice = createSlice({
-  name: 'users',
+  name: "users",
   initialState,
   reducers: {
     getUser: (state, action: PayloadAction<User>) => {
@@ -72,12 +78,14 @@ export const UserSlice = createSlice({
         password: payload.password,
         email: payload.email,
         number: payload.number,
+        // isLogin:payload.isLogin
       };
       state.user = obj;
     },
+    login:(state, action: PayloadAction<boolean>)=>{
+      state.isLogin = action.payload
+    }
   },
-
-
 
   extraReducers: (builder) => {
     builder
@@ -93,10 +101,9 @@ export const UserSlice = createSlice({
       .addCase(postUsersData.rejected, (state, action) => {
         console.error("Failed to post user data:", action.error);
       });
-
   },
-})
+});
 
-export const { getUser } = UserSlice.actions
+export const { getUser,login } = UserSlice.actions;
 
-export default UserSlice.reducer
+export default UserSlice.reducer;
